@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OMNI-SKILL // Career Graph</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Barlow+Condensed:ital,wght@0,100;0,300;0,400;0,700;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a0f;
+    --bg2: #080f18;
+    --panel: #0b1622;
+    --border: #1a2d42;
+    --accent: #00e5ff;
+    --accent2: #ff3c5f;
+    --accent3: #7fff00;
+    --accent4: #ff9900;
+    --glow: rgba(0,229,255,0.18);
+    --glow2: rgba(255,60,95,0.18);
+    --text: #c8dde8;
+    --text-dim: #4a6a80;
+    --text-bright: #e8f4ff;
+    --mono: 'Share Tech Mono', monospace;
+    --head: 'Barlow Condensed', sans-serif;
+    --body: 'Rajdhani', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* NOISE GRAIN */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 9998;
+    animation: grain 0.5s steps(1) infinite;
+  }
+
+  @keyframes grain {
+    0%, 100% { transform: translate(0,0); }
+    10% { transform: translate(-2%,-3%); }
+    20% { transform: translate(3%,2%); }
+    30% { transform: translate(-1%,4%); }
+    40% { transform: translate(4%,-1%); }
+    50% { transform: translate(-3%,1%); }
+    60% { transform: translate(2%,-4%); }
+    70% { transform: translate(-4%,3%); }
+    80% { transform: translate(1%,-2%); }
+    90% { transform: translate(3%,4%); }
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 60px;
+    background: rgba(5,10,15,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: var(--head);
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-shadow: 0 0 20px var(--accent);
+  }
+
+  .nav-logo span { color: var(--accent2); }
+
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 6px 14px;
+    border: 1px solid transparent;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .nav-links a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+  }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+  }
+
+  .hero-orb {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.06) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    border-radius: 50%;
+    animation: pulse 4s ease-in-out infinite;
+  }
+
+  .hero-orb2 {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(255,60,95,0.05) 0%, transparent 70%);
+    top: 30%;
+    left: 30%;
+    border-radius: 50%;
+    animation: pulse2 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.7; }
+    50% { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
+  }
+
+  @keyframes pulse2 {
+    0%,100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.3); opacity: 0.9; }
+  }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--head);
+    font-size: clamp(72px, 12vw, 140px);
+    font-weight: 900;
+    font-style: italic;
+    line-height: 0.85;
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    color: var(--text-bright);
+    position: relative;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.3s forwards;
+  }
+
+  .hero-title .line1 { display: block; }
+  .hero-title .line2 {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+    filter: drop-shadow(0 0 30px var(--accent));
+  }
+
+  .hero-subtitle {
+    font-family: var(--body);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-dim);
+    max-width: 680px;
+    margin: 28px auto 0;
+    letter-spacing: 1px;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.5s forwards;
+  }
+
+  .hero-subtitle em {
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 36px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.7s forwards;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent3);
+    border: 1px solid rgba(127,255,0,0.3);
+    padding: 6px 16px;
+    text-transform: uppercase;
+    background: rgba(127,255,0,0.04);
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  .hero-scroll::after {
+    content: '';
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+  }
+
+  @keyframes bounce {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 100px 0;
+    position: relative;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 60px;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  .section-title {
+    font-family: var(--head);
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 900;
+    font-style: italic;
+    text-transform: uppercase;
+    color: var(--text-bright);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  /* PROBLEM */
+  #problem {
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+  }
+
+  .problem-card {
+    background: var(--panel);
+    padding: 36px;
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .problem-card:hover { background: #0d1c2a; }
+
+  .problem-card::before {
+    content: '//';
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent2);
+    margin-bottom: 12px;
+    display: block;
+    letter-spacing: 2px;
+  }
+
+  .problem-card p {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .problem-highlight {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #0d0814, #140818);
+    border: 1px solid rgba(255,60,95,0.3);
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .problem-highlight::before {
+    content: 'CRITICAL INSIGHT';
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--accent2);
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  .problem-highlight p {
+    font-family: var(--head);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--text-bright);
+  }
+
+  .problem-highlight p span {
+    color: var(--accent2);
+    font-style: italic;
+  }
+
+  /* LAYERS TABLE */
+  .layers-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .layers-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--accent);
+    background: rgba(0,229,255,0.03);
+  }
+
+  .layers-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    vertical-align: top;
+    line-height: 1.5;
+    color: var(--text);
+    transition: background 0.2s;
+  }
+
+  .layers-table tr:hover td {
+    background: rgba(0,229,255,0.03);
+  }
+
+  .layers-table td:first-child {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent3);
+    white-space: nowrap;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .layers-table td em {
+    color: var(--text-dim);
+    font-style: normal;
+    font-size: 13px;
+  }
+
+  /* PASSPORT */
+  #passport { background: var(--bg2); }
+
+  .passport-mock {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .passport-card {
+    background: linear-gradient(145deg, #0d1e2e, #070f18);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 60px rgba(0,229,255,0.1), inset 0 0 40px rgba(0,229,255,0.03);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .passport-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  .passport-logo {
+    font-family: var(--head);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 6px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0.7;
+  }
+
+  .passport-avatar {
+    width: 72px;
+    height: 72px;
+    border: 2px solid var(--accent);
+    margin-bottom: 16px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--head);
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--accent);
+    background: rgba(0,229,255,0.05);
+    clip-path: polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%);
+  }
+
+  .passport-name {
+    font-family: var(--head);
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--text-bright);
+    letter-spacing: 1px;
+    line-height: 1.1;
+  }
+
+  .passport-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin: 6px 0 20px;
+    text-transform: uppercase;
+  }
+
+  .passport-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .passport-stat-label {
+    font-family: var(--mono);
+    color: var(--text-dim);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .passport-stat-val {
+    font-family: var(--mono);
+    color: var(--accent3);
+    font-size: 13px;
+  }
+
+  .passport-verify-bar {
+    margin-top: 20px;
+  }
+
+  .verify-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .verify-row {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 4px;
+    align-items: center;
+  }
+
+  .verify-seg {
+    height: 6px;
+    flex: 1;
+    border-radius: 0;
+    background: var(--border);
+  }
+
+  .verify-seg.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .verify-seg.accent2.active { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); }
+  .verify-text {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    width: 90px;
+    letter-spacing: 1px;
+  }
+
+  .passport-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .passport-section-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .passport-section-card::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    transform: scaleY(0);
+    transition: transform 0.3s;
+    transform-origin: bottom;
+  }
+
+  .passport-section-card:hover { border-color: var(--accent); background: #0d1c2a; }
+  .passport-section-card:hover::after { transform: scaleY(1); }
+
+  .psc-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .psc-icon {
+    font-size: 20px;
+    width: 36px;
+    text-align: center;
+  }
+
+  .psc-title {
+    font-family: var(--head);
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-bright);
+    flex: 1;
+  }
+
+  .psc-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 3px 8px;
+  }
+
+  .psc-body {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-left: 50px;
+  }
+
+  /* SIGNALS */
+  #signals { background: var(--bg); }
+
+  .signals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin-bottom: 48px;
+  }
+
+  .signal-card {
+    background: var(--panel);
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .signal-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,229,255,0.04) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .signal-card:hover::before { opacity: 1; }
+
+  .signal-name {
+    font-family: var(--head);
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+  }
+
+  .signal-translation {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+
+  .signal-caution {
+    font-size: 13px;
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  .signal-caution::before {
+    content: '⚠ ';
+    font-size: 10px;
+  }
+
+  .signal-bar {
+    margin-top: 16px;
+    height: 3px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .signal-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    box-shadow: 0 0 10px var(--accent);
+    width: 0;
+    transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* VERIFICATION */
+  #verification { background: var(--bg2); }
+
+  .verify-timeline {
+    position: relative;
+    padding-left: 40px;
+  }
+
+  .verify-timeline::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
+  }
+
+  .verify-item {
+    position: relative;
+    margin-bottom: 32px;
+    padding: 28px 32px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .verify-item::before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+    z-index: 1;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+
+  .verify-item:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 30px rgba(0,229,255,0.08);
+  }
+
+  .verify-level {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+  }
+
+  .level-num {
+    font-family: var(--head);
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    opacity: 0.4;
+    font-style: italic;
+  }
+
+  .level-name {
+    font-family: var(--head);
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-bright);
+  }
+
+  .level-desc {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .level-example {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent3);
+    letter-spacing: 1px;
+  }
+
+  .level-example::before { content: '> '; color: var(--text-dim); }
+
+  /* ARCH DIAGRAM */
+  #architecture { background: var(--bg); }
+
+  .arch-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .arch-node {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .arch-node:hover {
+    border-color: var(--accent);
+    background: #0d1c2a;
+    z-index: 1;
+  }
+
+  .arch-node-icon {
+    font-size: 22px;
+    width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .arch-node-content { flex: 1; }
+
+  .arch-node-title {
+    font-family: var(--head);
+    font-size: 17px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-bright);
+    margin-bottom: 3px;
+  }
+
+  .arch-node-desc {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .arch-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 28px;
+    position: relative;
+  }
+
+  .arch-arrow::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1px;
+    left: 50%;
+    background: linear-gradient(to bottom, var(--accent), var(--accent3));
+    opacity: 0.5;
+  }
+
+  .arch-arrow::after {
+    content: '▼';
+    font-size: 10px;
+    color: var(--accent3);
+    position: absolute;
+    bottom: 0;
+  }
+
+  .arch-multi {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+
+  .arch-multi-node {
+    background: var(--panel);
+    padding: 16px 14px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: default;
+    transition: all 0.2s;
+  }
+
+  .arch-multi-node:hover {
+    background: rgba(0,229,255,0.06);
+    color: var(--text-bright);
+  }
+
+  /* MONETIZATION */
+  #monetization { background: var(--bg2); }
+
+  .mono-tiers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin-bottom: 60px;
+  }
+
+  .mono-tier {
+    background: var(--panel);
+    padding: 28px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: all 0.3s;
+  }
+
+  .mono-tier:hover { background: #0d1c2a; }
+
+  .mono-tier.featured {
+    background: linear-gradient(145deg, #0a1e14, #061208);
+    border: 1px solid rgba(127,255,0,0.3);
+  }
+
+  .tier-year {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .tier-name {
+    font-family: var(--head);
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-bright);
+    margin-bottom: 16px;
+    line-height: 1.2;
+  }
+
+  .tier-rev {
+    font-family: var(--head);
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--accent3);
+    line-height: 1;
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+
+  .mono-tier.featured .tier-rev {
+    font-size: 30px;
+    text-shadow: 0 0 20px var(--accent3);
+  }
+
+  .tier-range {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .tier-driver {
+    font-size: 12px;
+    color: var(--text);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  /* REVENUE TABLE */
+  .rev-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .rev-table th {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rev-table th:first-child { text-align: left; }
+
+  .rev-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(26,45,66,0.5);
+    font-family: var(--mono);
+    font-size: 13px;
+    text-align: right;
+    color: var(--text);
+    transition: background 0.2s;
+  }
+
+  .rev-table tr:hover td { background: rgba(0,229,255,0.02); }
+
+  .rev-table td:first-child {
+    text-align: left;
+    color: var(--text-bright);
+    font-size: 14px;
+  }
+
+  .rev-table tr:last-child td {
+    color: var(--accent3);
+    font-weight: 700;
+    border-top: 1px solid var(--accent3);
+    font-size: 14px;
+  }
+
+  /* ROADMAP */
+  #roadmap { background: var(--bg); }
+
+  .roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background: var(--border);
+  }
+
+  .roadmap-phase {
+    background: var(--panel);
+    padding: 30px 26px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: all 0.3s;
+  }
+
+  .roadmap-phase:hover { background: #0d1c2a; }
+
+  .roadmap-phase::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+
+  .roadmap-phase:hover::after { transform: scaleX(1); }
+
+  .phase-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .phase-goal {
+    font-family: var(--head);
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-bright);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .phase-features {
+    list-style: none;
+    margin-bottom: 16px;
+  }
+
+  .phase-features li {
+    font-size: 13px;
+    color: var(--text);
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.4;
+  }
+
+  .phase-features li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+
+  .phase-metric {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent3);
+    letter-spacing: 1px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+
+  .phase-metric::before {
+    content: 'SUCCESS: ';
+    color: var(--text-dim);
+  }
+
+  /* RISKS */
+  #risks { background: var(--bg2); }
+
+  .risks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .risk-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    padding: 24px 28px;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .risk-card:hover {
+    border-left-color: var(--accent);
+    background: #0d1c2a;
+  }
+
+  .risk-name {
+    font-family: var(--head);
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  .risk-card:hover .risk-name { color: var(--text-bright); }
+
+  .risk-why {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .risk-fix {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent3);
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+  }
+
+  .risk-fix::before {
+    content: 'MITIGATION: ';
+    color: var(--text-dim);
+  }
+
+  /* GTM */
+  #gtm { background: var(--bg); }
+
+  .gtm-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--border);
+    margin-bottom: 48px;
+  }
+
+  .gtm-metric {
+    background: var(--panel);
+    padding: 28px 20px;
+    text-align: center;
+    cursor: default;
+    transition: all 0.3s;
+  }
+
+  .gtm-metric:hover { background: rgba(0,229,255,0.04); }
+
+  .gtm-metric-val {
+    font-family: var(--head);
+    font-size: 44px;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+    text-shadow: 0 0 30px rgba(0,229,255,0.4);
+  }
+
+  .gtm-metric-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .gtm-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .gtm-step {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+    cursor: default;
+    transition: all 0.3s;
+  }
+
+  .gtm-step:hover { border-color: rgba(0,229,255,0.4); }
+
+  .step-num {
+    font-family: var(--head);
+    font-size: 60px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(0,229,255,0.07);
+    position: absolute;
+    top: 10px; right: 14px;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .step-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* VERDICT */
+  #verdict {
+    background: var(--bg2);
+    text-align: center;
+    padding: 120px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .verdict-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(0,229,255,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 50%, rgba(255,60,95,0.04) 0%, transparent 50%);
+  }
+
+  .verdict-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .verdict-text {
+    font-family: var(--head);
+    font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 700;
+    line-height: 1.4;
+    max-width: 900px;
+    margin: 0 auto 40px;
+    color: var(--text-bright);
+    position: relative;
+  }
+
+  .verdict-text span { color: var(--accent); }
+  .verdict-text em { color: var(--accent3); font-style: normal; }
+
+  .verdict-rule {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.8;
+    border: 1px solid var(--border);
+    padding: 24px 32px;
+    position: relative;
+  }
+
+  .verdict-rule::before {
+    content: 'BRUTAL STRATEGIC RULE';
+    display: block;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--accent2);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 32px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: var(--head);
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: var(--accent);
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+
+  .footer-info {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* SEPARATOR */
+  .sep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 60px 0;
+  }
+
+  /* GLOW LINE */
+  .glow-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 10px var(--accent);
+    margin: 0;
+    opacity: 0.4;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent); opacity: 0.5; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 1px solid;
+    margin: 2px;
+  }
+
+  .tag-cyan { color: var(--accent); border-color: rgba(0,229,255,0.4); background: rgba(0,229,255,0.04); }
+  .tag-red { color: var(--accent2); border-color: rgba(255,60,95,0.4); background: rgba(255,60,95,0.04); }
+  .tag-green { color: var(--accent3); border-color: rgba(127,255,0,0.4); background: rgba(127,255,0,0.04); }
+  .tag-orange { color: var(--accent4); border-color: rgba(255,153,0,0.4); background: rgba(255,153,0,0.04); }
+
+  /* UTILITY */
+  .highlight { color: var(--accent); }
+  .highlight2 { color: var(--accent2); }
+  .highlight3 { color: var(--accent3); }
+  .mono { font-family: var(--mono); }
+
+  .text-center { text-align: center; }
+
+  @media (max-width: 900px) {
+    .passport-mock { grid-template-columns: 1fr; }
+    .signals-grid { grid-template-columns: 1fr 1fr; }
+    .roadmap-grid { grid-template-columns: 1fr; }
+    .risks-grid { grid-template-columns: 1fr; }
+    .gtm-steps { grid-template-columns: 1fr; }
+    .gtm-metrics { grid-template-columns: repeat(2, 1fr); }
+    .mono-tiers { grid-template-columns: repeat(2, 1fr); }
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+  }
+
+  /* ACTIVE ANIMATIONS */
+  .signal-bar-fill.animated { width: var(--fill-width); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">OMNI<span>-</span>SKILL</div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#passport">Passport</a></li>
+    <li><a href="#signals">Signals</a></li>
+    <li><a href="#verification">Trust</a></li>
+    <li><a href="#architecture">Stack</a></li>
+    <li><a href="#monetization">Revenue</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-orb"></div>
+  <div class="hero-orb2"></div>
+  <div class="hero-tag">// Career Evidence Platform · Document Date: 09 May 2026</div>
+  <h1 class="hero-title">
+    <span class="line1">OMNI</span>
+    <span class="line2">SKILL</span>
+  </h1>
+  <p class="hero-subtitle">
+    A <em>data-backed career evidence platform</em> that connects to gaming, esports, and digital community platforms — analyzes verified digital activity — and converts it into <em>explainable career-ready proof</em> for students and early-career talent.
+  </p>
+  <div class="hero-badges">
+    <div class="badge">Career Evidence Platform</div>
+    <div class="badge">Digital-Native Talent</div>
+    <div class="badge">Esports · Discord · FACEIT</div>
+    <div class="badge">India-First Launch</div>
+    <div class="badge">MVP Phase 2026</div>
+  </div>
+  <div class="hero-scroll">SCROLL</div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">01 //</span>
+      <h2 class="section-title">The Problem</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <p>Students build real experience outside formal internships — Discord administration, esports leadership, tournament organization, guild management — but have no way to show it professionally.</p>
+      </div>
+      <div class="problem-card">
+        <p>Traditional resumes ignore most digital-native experience or make it sound childish when described badly. Recruiters distrust vague claims with no evidence trail.</p>
+      </div>
+      <div class="problem-card">
+        <p>College esports clubs and student communities lack structured records of member achievements, event participation, and leadership history.</p>
+      </div>
+      <div class="problem-card">
+        <p>Early-career candidates need concrete proof, not generic personality statements. "I am a leader" without evidence is worthless in today's hiring market.</p>
+      </div>
+      <div class="problem-highlight">
+        <p>The market does not need another gaming leaderboard. It needs a <span>credible way to turn verified digital participation</span> into structured career evidence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT LAYERS -->
+<section id="layers">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">02 //</span>
+      <h2 class="section-title">Product Layers</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <table class="layers-table">
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>What It Does</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Platform Data Pipeline</td>
+          <td>Pulls data from supported game/esports/community platforms</td>
+          <td><em>FACEIT match history, Steam achievements, Riot match/ranked data, Discord guild evidence</em></td>
+        </tr>
+        <tr>
+          <td>Community Evidence Pipeline</td>
+          <td>Captures online community and event operations evidence</td>
+          <td><em>Discord moderator role, club leadership, event organization, tournament participation</em></td>
+        </tr>
+        <tr>
+          <td>Manual Proof Pipeline</td>
+          <td>Screenshots, certificates, letters, and event proofs</td>
+          <td><em>Event poster, certificate, server role screenshot, college club confirmation</em></td>
+        </tr>
+        <tr>
+          <td>Skill Signal Engine</td>
+          <td>Calculates observable signals from normalized data</td>
+          <td><em>Consistency, improvement, role stability, competitive engagement, community ops</em></td>
+        </tr>
+        <tr>
+          <td>Verification Layer</td>
+          <td>Assigns trust level and keeps audit history</td>
+          <td><em>Level 3 platform-verified; Level 5 institution-verified</em></td>
+        </tr>
+        <tr>
+          <td>Passport Generator</td>
+          <td>Creates the final shareable career artifact</td>
+          <td><em>Public profile, evidence cards, resume bullets, PDF export</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- PASSPORT -->
+<section id="passport">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">03 //</span>
+      <h2 class="section-title">The Passport</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="passport-mock">
+      <!-- PASSPORT CARD MOCK -->
+      <div class="passport-card">
+        <div class="passport-logo">OMNI-SKILL // PASSPORT</div>
+        <div class="passport-avatar">OS</div>
+        <div class="passport-name">Digital Operator</div>
+        <div class="passport-title">Esports Captain · Discord Admin · Event Coordinator</div>
+
+        <div class="passport-stat">
+          <span class="passport-stat-label">Evidence Cards</span>
+          <span class="passport-stat-val">12</span>
+        </div>
+        <div class="passport-stat">
+          <span class="passport-stat-label">Verified Claims</span>
+          <span class="passport-stat-val">8</span>
+        </div>
+        <div class="passport-stat">
+          <span class="passport-stat-label">Trust Score</span>
+          <span class="passport-stat-val">LEVEL 4</span>
+        </div>
+        <div class="passport-stat">
+          <span class="passport-stat-label">Active Weeks</span>
+          <span class="passport-stat-val">62</span>
+        </div>
+        <div class="passport-stat">
+          <span class="passport-stat-label">Community Size</span>
+          <span class="passport-stat-val">1,200+</span>
+        </div>
+
+        <div class="passport-verify-bar" style="margin-top: 24px;">
+          <div class="verify-label">Verification Breakdown</div>
+          <div class="verify-row">
+            <div class="verify-text">Self-reported</div>
+            <div class="verify-seg active" style="flex:1;"></div>
+            <div class="verify-seg active"></div>
+            <div class="verify-seg"></div>
+            <div class="verify-seg"></div>
+            <div class="verify-seg"></div>
+          </div>
+          <div class="verify-row">
+            <div class="verify-text">Account-linked</div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg"></div>
+            <div class="verify-seg"></div>
+          </div>
+          <div class="verify-row">
+            <div class="verify-text">Platform data</div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg"></div>
+          </div>
+          <div class="verify-row">
+            <div class="verify-text">Institution</div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+            <div class="verify-seg active accent2"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; display:flex; flex-wrap:wrap; gap:6px;">
+          <span class="tag tag-cyan">Consistency</span>
+          <span class="tag tag-green">Community Ops</span>
+          <span class="tag tag-cyan">Event Coord</span>
+          <span class="tag tag-orange">Competitive</span>
+          <span class="tag tag-red">Leadership</span>
+        </div>
+      </div>
+
+      <!-- PASSPORT SECTIONS -->
+      <div class="passport-sections">
+        <div class="passport-section-card">
+          <div class="psc-header">
+            <div class="psc-icon">📋</div>
+            <div class="psc-title">Career Summary</div>
+            <div class="psc-tag">AI-Generated</div>
+          </div>
+          <div class="psc-body">Short professional summary generated only from verified facts. No hallucinated traits, no invented personality insights — every word is evidenced.</div>
+        </div>
+        <div class="passport-section-card">
+          <div class="psc-header">
+            <div class="psc-icon">⚡</div>
+            <div class="psc-title">Evidence Cards</div>
+            <div class="psc-tag">Core Output</div>
+          </div>
+          <div class="psc-body">Detailed cards showing source platform, proof file, verification level, confidence rating, and professional career translation of each verified claim.</div>
+        </div>
+        <div class="passport-section-card">
+          <div class="psc-header">
+            <div class="psc-icon">📈</div>
+            <div class="psc-title">Experience Timeline</div>
+            <div class="psc-tag">Chronological</div>
+          </div>
+          <div class="psc-body">Chronological record of roles, events, achievements, ranks, and verified activities across all connected platforms and manual submissions.</div>
+        </div>
+        <div class="passport-section-card">
+          <div class="psc-header">
+            <div class="psc-icon">🎯</div>
+            <div class="psc-title">Career Track Mapping</div>
+            <div class="psc-tag">AI-Assisted</div>
+          </div>
+          <div class="psc-body">Suggested entry-level roles based on evidence patterns — Community Manager, Operations Associate, Trust & Safety, Customer Success, Esports Coordinator.</div>
+        </div>
+        <div class="passport-section-card">
+          <div class="psc-header">
+            <div class="psc-icon">📄</div>
+            <div class="psc-title">Resume Bullets + PDF Export</div>
+            <div class="psc-tag">Shareable</div>
+          </div>
+          <div class="psc-body">Professional bullet points for LinkedIn/resumes, plus a polished PDF report for internship applications, placement cells, and club records.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIGNALS -->
+<section id="signals">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">04 //</span>
+      <h2 class="section-title">Skill Signals</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="signals-grid">
+      <div class="signal-card">
+        <div class="signal-name">Consistency</div>
+        <div class="signal-translation">→ Reliability · Discipline · Follow-Through</div>
+        <div style="font-size:13px; color:var(--text); line-height:1.5; margin-bottom:8px;">Active weeks, match frequency, event attendance, long-term participation metrics.</div>
+        <div class="signal-caution">Do not overvalue raw playtime.</div>
+        <div class="signal-bar"><div class="signal-bar-fill" style="--fill-width:85%"></div></div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name">Improvement Rate</div>
+        <div class="signal-translation">→ Learning Ability · Adaptability · Skill Acquisition</div>
+        <div style="font-size:13px; color:var(--text); line-height:1.5; margin-bottom:8px;">Rank movement, performance trend, season-over-season growth analytics.</div>
+        <div class="signal-caution">Must account for game/rank context.</div>
+        <div class="signal-bar"><div class="signal-bar-fill" style="--fill-width:72%"></div></div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name">Role Stability</div>
+        <div class="signal-translation">→ Dependability · Specialization · Team Fit</div>
+        <div style="font-size:13px; color:var(--text); line-height:1.5; margin-bottom:8px;">Repeated role usage, team role consistency, tournament role assignments.</div>
+        <div class="signal-caution">Can be negative if user is rigid.</div>
+        <div class="signal-bar"><div class="signal-bar-fill" style="--fill-width:68%"></div></div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name">Adaptability</div>
+        <div class="signal-translation">→ Flexibility · Problem-Solving</div>
+        <div style="font-size:13px; color:var(--text); line-height:1.5; margin-bottom:8px;">Stable performance across roles, maps, modes, and team contexts.</div>
+        <div class="signal-caution">Many roles alone does not prove adaptability.</div>
+        <div class="signal-bar"><div class="signal-bar-fill" style="--fill-width:60%"></div></div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name">Community Ops</div>
+        <div class="signal-translation">→ Operations · Trust · Stakeholder Comms</div>
+        <div style="font-size:13px; color:var(--text); line-height:1.5; margin-bottom:8px;">Discord roles, community size, duration, events run, moderation evidence.</div>
+        <div class="signal-caution">Requires role/community verification.</div>
+        <div class="signal-bar"><div class="signal-bar-fill" style="--fill-width:90%"></div></div>
+      </div>
+      <div class="signal-card">
+        <div class="signal-name">Pressure Performance</div>
+        <div class="signal-translation">→ Composure Under Constraints</div>
+        <div style="font-size:13px; color:var(--text); line-height:1.5; margin-bottom:8px;">Tournament match data, overtime rounds, comeback performance indicators.</div>
+        <div class="signal-caution">Hard to prove — avoid early overclaims.</div>
+        <div class="signal-bar"><div class="signal-bar-fill" style="--fill-width:45%"></div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px; background:var(--panel); border:1px solid var(--border); padding:28px 32px;">
+      <div style="font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--accent); margin-bottom:14px; text-transform:uppercase;">Signal Design Principle</div>
+      <p style="font-size:16px; line-height:1.7; color:var(--text);">Every signal must show: <span class="highlight">source</span>, <span class="highlight">verification level</span>, <span class="highlight">confidence</span>, <span class="highlight">evidence window</span>, <span class="highlight">supporting data</span>, and <span class="highlight2">limitations</span>. If the system does not have enough evidence, it must say <em style="color:var(--accent2);font-style:normal;">"not enough evidence"</em> instead of inventing a claim.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VERIFICATION -->
+<section id="verification">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">05 //</span>
+      <h2 class="section-title">Trust System</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="verify-timeline">
+      <div class="verify-item">
+        <div class="verify-level">
+          <div class="level-num">1</div>
+          <div class="level-name">Self-Reported</div>
+        </div>
+        <div class="level-desc">User entered the claim, but no external proof confirms it.</div>
+        <div class="level-example">User says they led a guild.</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-level">
+          <div class="level-num">2</div>
+          <div class="level-name">Account-Linked</div>
+        </div>
+        <div class="level-desc">A connected account proves identity or ownership of the claimed platform.</div>
+        <div class="level-example">Discord, Steam, Riot, or FACEIT account connected via OAuth.</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-level">
+          <div class="level-num">3</div>
+          <div class="level-name">Platform Data Verified</div>
+        </div>
+        <div class="level-desc">API or platform data confirms activity, rank, or participation.</div>
+        <div class="level-example">FACEIT match history confirms competitive activity and rank.</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-level">
+          <div class="level-num">4</div>
+          <div class="level-name">Peer / Community Verified</div>
+        </div>
+        <div class="level-desc">Other members, moderators, or admins confirm the role or claim.</div>
+        <div class="level-example">Server owner confirms user was a moderator for 14 months.</div>
+      </div>
+      <div class="verify-item">
+        <div class="verify-level">
+          <div class="level-num">5</div>
+          <div class="level-name">Institution Verified</div>
+        </div>
+        <div class="level-desc">College club, tournament organizer, employer, or official institution confirms the claim.</div>
+        <div class="level-example">College esports club verifies tournament coordinator role with letter.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:36px; background:linear-gradient(135deg, #0d0814, #140818); border:1px solid rgba(255,60,95,0.3); padding:28px 32px;">
+      <div style="font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--accent2); margin-bottom:12px; text-transform:uppercase;">Verification State Machine</div>
+      <div style="font-family:var(--mono); font-size:14px; color:var(--text); letter-spacing:1px; line-height:2;">
+        <span style="color:var(--text-dim)">draft</span>
+        <span style="color:var(--accent); margin:0 8px;">→</span>
+        <span style="color:var(--text-dim)">submitted</span>
+        <span style="color:var(--accent); margin:0 8px;">→</span>
+        <span style="color:var(--text-dim)">under_review</span>
+        <span style="color:var(--accent); margin:0 8px;">→</span>
+        <span style="color:var(--accent4)">needs_more_info</span>
+        <span style="color:var(--accent); margin:0 8px;">→</span>
+        <span style="color:var(--accent3)">approved</span>
+        <span style="color:var(--text-dim); margin:0 8px;">/</span>
+        <span style="color:var(--accent2)">rejected</span>
+        <span style="color:var(--accent); margin:0 8px;">→</span>
+        <span style="color:var(--accent2)">revoked</span>
+      </div>
+      <div style="font-size:14px; color:var(--text-dim); margin-top:14px; line-height:1.6;">Revocation must exist. If fake claims are discovered later, trust requires removing or downgrading the evidence with a full audit trail.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">06 //</span>
+      <h2 class="section-title">Tech Stack</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start;">
+      <div>
+        <div style="font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--accent); margin-bottom:20px; text-transform:uppercase;">Architecture Flow</div>
+        <div class="arch-flow">
+          <div class="arch-multi">
+            <div class="arch-multi-node">Discord</div>
+            <div class="arch-multi-node">FACEIT</div>
+            <div class="arch-multi-node">Riot API</div>
+            <div class="arch-multi-node">Steam</div>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node">
+            <div class="arch-node-icon">🔑</div>
+            <div class="arch-node-content">
+              <div class="arch-node-title">Account Connection Layer</div>
+              <div class="arch-node-desc">OAuth / API Keys / Consent / Token Storage</div>
+            </div>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node">
+            <div class="arch-node-icon">⬇</div>
+            <div class="arch-node-content">
+              <div class="arch-node-title">Data Ingestion Layer</div>
+              <div class="arch-node-desc">Fetch raw data / rate limits / sync jobs</div>
+            </div>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node">
+            <div class="arch-node-icon">🗄</div>
+            <div class="arch-node-content">
+              <div class="arch-node-title">Raw Evidence Store</div>
+              <div class="arch-node-desc">Immutable snapshots / audit trail / source metadata</div>
+            </div>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node">
+            <div class="arch-node-icon">⚙</div>
+            <div class="arch-node-content">
+              <div class="arch-node-title">Analytics Engine</div>
+              <div class="arch-node-desc">Consistency / progression / role stability / participation</div>
+            </div>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node">
+            <div class="arch-node-icon">🤖</div>
+            <div class="arch-node-content">
+              <div class="arch-node-title">AI Writing Layer</div>
+              <div class="arch-node-desc">Professional summaries / bullets / card wording</div>
+            </div>
+          </div>
+          <div class="arch-arrow"></div>
+          <div class="arch-node" style="border-color:var(--accent); box-shadow:0 0 20px rgba(0,229,255,0.08);">
+            <div class="arch-node-icon">🏆</div>
+            <div class="arch-node-content">
+              <div class="arch-node-title" style="color:var(--accent);">Omni-Skill Passport</div>
+              <div class="arch-node-desc">Shareable profile / PDF / LinkedIn export</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--accent); margin-bottom:20px; text-transform:uppercase;">MVP Tech Choices</div>
+        <div style="display:flex; flex-direction:column; gap:2px; background:var(--border);">
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">Frontend</span>
+            <span style="font-size:14px; color:var(--text-bright);">Next.js + TypeScript + Tailwind + shadcn/ui</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">Backend</span>
+            <span style="font-size:14px; color:var(--text-bright);">FastAPI + Pydantic + SQLAlchemy</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">Database</span>
+            <span style="font-size:14px; color:var(--text-bright);">PostgreSQL / Supabase Postgres</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">Auth</span>
+            <span style="font-size:14px; color:var(--text-bright);">Supabase Auth or Clerk</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">Storage</span>
+            <span style="font-size:14px; color:var(--text-bright);">Supabase Storage / Cloudflare R2 / S3</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">Queue</span>
+            <span style="font-size:14px; color:var(--text-bright);">Celery + Redis (post-MVP)</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">PDF</span>
+            <span style="font-size:14px; color:var(--text-bright);">Playwright HTML-to-PDF</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">AI</span>
+            <span style="font-size:14px; color:var(--text-bright);">OpenAI API (wording + summaries only)</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">Analytics</span>
+            <span style="font-size:14px; color:var(--text-bright);">PostHog</span>
+          </div>
+          <div style="background:var(--panel); padding:16px 20px; display:flex; gap:16px; align-items:center;">
+            <span style="font-family:var(--mono); font-size:10px; color:var(--text-dim); letter-spacing:2px; width:90px; text-transform:uppercase; flex-shrink:0;">Deploy</span>
+            <span style="font-size:14px; color:var(--text-bright);">Vercel + Render/Fly.io + Supabase DB</span>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; background:linear-gradient(135deg,#0a1e14,#061208); border:1px solid rgba(127,255,0,0.3); padding:24px 28px;">
+          <div style="font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--accent3); margin-bottom:14px; text-transform:uppercase;">AI Usage Rules</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:12px; font-family:var(--mono);">
+            <div>
+              <div style="color:var(--accent3); margin-bottom:6px; letter-spacing:1px;">✓ ALLOWED</div>
+              <div style="color:var(--text); line-height:2; font-size:11px;">Resume bullets from approved evidence<br>Career summary from verified facts<br>Evidence card wording<br>Interview talking points<br>Career track suggestions + limits</div>
+            </div>
+            <div>
+              <div style="color:var(--accent2); margin-bottom:6px; letter-spacing:1px;">✗ FORBIDDEN</div>
+              <div style="color:var(--text-dim); line-height:2; font-size:11px;">Personality prediction<br>Leadership from rank alone<br>Private chat analysis<br>Emotional intelligence scoring<br>Black-box employability scores</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MONETIZATION -->
+<section id="monetization">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">07 //</span>
+      <h2 class="section-title">Revenue Model</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="mono-tiers">
+      <div class="mono-tier">
+        <div class="tier-year">Year 1</div>
+        <div class="tier-name">Students & Players</div>
+        <div class="tier-rev">₹8L</div>
+        <div class="tier-range">Conservative: ₹5L–₹15L</div>
+        <div class="tier-driver">Free passport + paid career kits, PDF exports, premium templates</div>
+      </div>
+      <div class="mono-tier">
+        <div class="tier-year">Year 2</div>
+        <div class="tier-name">Clubs & Societies</div>
+        <div class="tier-rev">₹90L</div>
+        <div class="tier-range">Conservative: ₹20L–₹50L</div>
+        <div class="tier-driver">20–40 paid clubs + event verification revenue starts</div>
+      </div>
+      <div class="mono-tier featured">
+        <div class="tier-year">Year 3</div>
+        <div class="tier-name">Scale + Recruiter Pilots</div>
+        <div class="tier-rev">₹2.5Cr</div>
+        <div class="tier-range">Aggressive: ₹6Cr–₹12Cr</div>
+        <div class="tier-driver">Club dashboard scale + first recruiter pilots launched</div>
+      </div>
+      <div class="mono-tier">
+        <div class="tier-year">Year 4</div>
+        <div class="tier-name">Institutional + White-Label</div>
+        <div class="tier-rev">₹7Cr</div>
+        <div class="tier-range">Base: ₹7Cr–₹12Cr</div>
+        <div class="tier-driver">University contracts, white-label pilots, large event deals</div>
+      </div>
+      <div class="mono-tier">
+        <div class="tier-year">Year 5</div>
+        <div class="tier-name">Platform Leader</div>
+        <div class="tier-rev">₹15Cr</div>
+        <div class="tier-range">Aggressive: ₹50Cr–₹100Cr+</div>
+        <div class="tier-driver">B2B subscriptions + recruiter revenue + API/white-label deals</div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--accent); margin-bottom:20px; text-transform:uppercase;">Base Case Revenue Breakdown (₹)</div>
+    <table class="rev-table">
+      <thead>
+        <tr>
+          <th>Stream</th>
+          <th>Year 1</th>
+          <th>Year 2</th>
+          <th>Year 3</th>
+          <th>Year 4</th>
+          <th>Year 5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Student Premium Kits</td>
+          <td>₹8L</td>
+          <td>₹25L</td>
+          <td>₹60L</td>
+          <td>₹1.2Cr</td>
+          <td>₹2Cr</td>
+        </tr>
+        <tr>
+          <td>Club Subscriptions</td>
+          <td>₹15L</td>
+          <td>₹90L</td>
+          <td>₹2.4Cr</td>
+          <td>₹5Cr</td>
+          <td>₹10Cr</td>
+        </tr>
+        <tr>
+          <td>Event Verification</td>
+          <td>₹5L</td>
+          <td>₹35L</td>
+          <td>₹80L</td>
+          <td>₹1.5Cr</td>
+          <td>₹3Cr</td>
+        </tr>
+        <tr>
+          <td>Recruiter Products</td>
+          <td>—</td>
+          <td>₹5L</td>
+          <td>₹75L</td>
+          <td>₹2.5Cr</td>
+          <td>₹7Cr</td>
+        </tr>
+        <tr>
+          <td>White-Label / API</td>
+          <td>—</td>
+          <td>—</td>
+          <td>₹30L</td>
+          <td>₹1.8Cr</td>
+          <td>₹5Cr</td>
+        </tr>
+        <tr>
+          <td>TOTAL</td>
+          <td>₹28L</td>
+          <td>₹1.55Cr</td>
+          <td>₹4.85Cr</td>
+          <td>₹12Cr</td>
+          <td>₹27Cr</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">08 //</span>
+      <h2 class="section-title">Product Roadmap</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="roadmap-grid">
+      <div class="roadmap-phase">
+        <div class="phase-num">Phase 1 // Validation</div>
+        <div class="phase-goal">Prove Users Want The Profile</div>
+        <ul class="phase-features">
+          <li>Landing page + sample passports</li>
+          <li>Manual onboarding</li>
+          <li>Proof upload system</li>
+        </ul>
+        <div class="phase-metric">50 users request profiles; 10 share publicly</div>
+      </div>
+      <div class="roadmap-phase">
+        <div class="phase-num">Phase 2 // MVP</div>
+        <div class="phase-goal">Launch Working Passport Builder</div>
+        <ul class="phase-features">
+          <li>Auth + profile creation</li>
+          <li>Evidence forms + admin verification</li>
+          <li>PDF export</li>
+        </ul>
+        <div class="phase-metric">200 profiles; 50 verified; 20 shared</div>
+      </div>
+      <div class="roadmap-phase">
+        <div class="phase-num">Phase 3 // Data MVP</div>
+        <div class="phase-goal">Add First Platform Connections</div>
+        <ul class="phase-features">
+          <li>Discord + FACEIT/Riot integration</li>
+          <li>Raw snapshots + derived metrics</li>
+          <li>Activity timeline charts</li>
+        </ul>
+        <div class="phase-metric">500 connected accounts; 200 data-backed cards</div>
+      </div>
+      <div class="roadmap-phase">
+        <div class="phase-num">Phase 4 // Club Dashboard</div>
+        <div class="phase-goal">Turn Traction Into B2B</div>
+        <ul class="phase-features">
+          <li>Club admin tools</li>
+          <li>Event verification + certificates</li>
+          <li>Placement reports</li>
+        </ul>
+        <div class="phase-metric">5–10 paying clubs; 1,000+ profiles</div>
+      </div>
+      <div class="roadmap-phase">
+        <div class="phase-num">Phase 5 // Recruiter Pilot</div>
+        <div class="phase-goal">Test Hiring Usefulness</div>
+        <ul class="phase-features">
+          <li>Profile filters + shortlisting</li>
+          <li>Evidence summaries for recruiters</li>
+          <li>Candidate shortlisting tools</li>
+        </ul>
+        <div class="phase-metric">5 recruiter pilots; 20 shortlisted candidates</div>
+      </div>
+      <div class="roadmap-phase">
+        <div class="phase-num">Phase 6 // Platform Expansion</div>
+        <div class="phase-goal">Automate Verification At Scale</div>
+        <ul class="phase-features">
+          <li>More APIs + tournament integrations</li>
+          <li>White-label dashboards</li>
+          <li>Institutional contracts</li>
+        </ul>
+        <div class="phase-metric">2–3 major integrations or institutional contracts</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GTM -->
+<section id="gtm">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">09 //</span>
+      <h2 class="section-title">Go-To-Market</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="gtm-metrics">
+      <div class="gtm-metric">
+        <div class="gtm-metric-val">50+</div>
+        <div class="gtm-metric-label">Profiles Requested</div>
+      </div>
+      <div class="gtm-metric">
+        <div class="gtm-metric-val">30+</div>
+        <div class="gtm-metric-label">Profiles Completed</div>
+      </div>
+      <div class="gtm-metric">
+        <div class="gtm-metric-val">3</div>
+        <div class="gtm-metric-label">Club Pilots (Day 90)</div>
+      </div>
+      <div class="gtm-metric">
+        <div class="gtm-metric-val">25+</div>
+        <div class="gtm-metric-label">PDF Exports</div>
+      </div>
+    </div>
+
+    <div class="gtm-steps">
+      <div class="gtm-step">
+        <div class="step-num">01</div>
+        <div class="step-text">Build landing page with headline: <strong style="color:var(--accent);">"Turn your gaming and community history into verified career proof."</strong> Collect signups.</div>
+      </div>
+      <div class="gtm-step">
+        <div class="step-num">02</div>
+        <div class="step-text">Manually onboard 30–50 serious student gamers, Discord moderators, tournament organizers, and club leaders.</div>
+      </div>
+      <div class="gtm-step">
+        <div class="step-num">03</div>
+        <div class="step-text">Create high-quality sample Omni-Skill Passports manually before automating. Show the output, not the pipe.</div>
+      </div>
+      <div class="gtm-step">
+        <div class="step-num">04</div>
+        <div class="step-text">Partner with 2–3 college esports clubs. Issue verified event and leadership evidence with certificates.</div>
+      </div>
+      <div class="gtm-step">
+        <div class="step-num">05</div>
+        <div class="step-text">Run campaigns: <em style="color:var(--accent3);">"Discord Admin to Community Manager"</em>, <em style="color:var(--accent3);">"Guild Leaders Are Operators"</em>, <em style="color:var(--accent3);">"Esports Clubs Need Career Records"</em>.</div>
+      </div>
+      <div class="gtm-step">
+        <div class="step-num">06</div>
+        <div class="step-text">Track whether users actually share passports on LinkedIn or use them in applications. That is the only real validation.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RISKS -->
+<section id="risks">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-num">10 //</span>
+      <h2 class="section-title">Risks & Mitigation</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="risks-grid">
+      <div class="risk-card">
+        <div class="risk-name">Recruiters Don't Care</div>
+        <div class="risk-why">Product fails if career evidence is seen as a gimmick by hiring teams.</div>
+        <div class="risk-fix">Start with roles where gaming evidence is directly relevant: community ops, trust & safety, customer success, esports.</div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-name">Gaming Stigma</div>
+        <div class="risk-why">Parents, colleges, and recruiters may dismiss gaming-related credentials.</div>
+        <div class="risk-fix">Use professional language: digital operations, verified community leadership, event coordination, competitive discipline.</div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-name">Fake Claims</div>
+        <div class="risk-why">If evidence is easy to fake, the entire trust system collapses.</div>
+        <div class="risk-fix">Verification levels, audit logs, proof review, connected accounts, and a revocation system with full trail.</div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-name">API Restrictions</div>
+        <div class="risk-why">Game platform access can be limited, rate-limited, or revoked by providers.</div>
+        <div class="risk-fix">Modular connector architecture. Start with manual proof + Discord + FACEIT. Keep API assumptions modular and swappable.</div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-name">AI Hallucinations</div>
+        <div class="risk-why">AI layer may exaggerate unsupported traits and damage trust.</div>
+        <div class="risk-fix">Use structured verified facts only. Admin review before publish. Show limitations and confidence ratings on every card.</div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-name">Privacy Concerns</div>
+        <div class="risk-why">Users may fear surveillance or misuse of their gameplay data.</div>
+        <div class="risk-fix">Consent-first OAuth, no private-message scraping, granular visibility controls, full data delete/export options.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VERDICT -->
+<section id="verdict">
+  <div class="verdict-bg"></div>
+  <div class="verdict-label">// Final Business Verdict</div>
+  <div class="verdict-text">
+    <span>Omni-Skill</span> is the verified career evidence layer for <em>digital-native students</em>, esports participants, and online community operators. It connects to supported platforms, analyzes observable activity, verifies claims, and turns credible digital experience into <span>professional proof</span>.
+  </div>
+  <div class="verdict-rule">
+    Omni-Skill must never claim that gaming automatically makes someone job-ready. It must prove specific observable behaviors and translate them into career language with clear evidence, confidence, and limitations stated.
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">OMNI-SKILL // Career Graph</div>
+  <div class="footer-info">Document Date: 09 May 2026 · India-First Launch · MVP Architecture</div>
+</footer>
+
+<script>
+  // Animate signal bars on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const fills = entry.target.querySelectorAll('.signal-bar-fill');
+        fills.forEach(fill => {
+          const w = fill.style.getPropertyValue('--fill-width');
+          setTimeout(() => {
+            fill.style.width = w;
+            fill.style.transition = 'width 1.5s cubic-bezier(0.22, 1, 0.36, 1)';
+          }, 100);
+        });
+      }
+    });
+  }, { threshold: 0.2 });
+
+  const signalSection = document.querySelector('#signals');
+  if (signalSection) observer.observe(signalSection);
+
+  // Glitch effect on logo
+  const logo = document.querySelector('.nav-logo');
+  setInterval(() => {
+    if (Math.random() > 0.97) {
+      logo.style.textShadow = `2px 0 0 rgba(255,60,95,0.8), -2px 0 0 rgba(0,229,255,0.8)`;
+      logo.style.letterSpacing = '3px';
+      setTimeout(() => {
+        logo.style.textShadow = '0 0 20px var(--accent)';
+        logo.style.letterSpacing = '4px';
+      }, 80);
+    }
+  }, 200);
+
+  // Smooth reveal on scroll
+  const revealItems = document.querySelectorAll('.verify-item, .risk-card, .roadmap-phase, .gtm-step');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  revealItems.forEach((item, i) => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(20px)';
+    item.style.transition = `opacity 0.5s ${i * 0.05}s ease, transform 0.5s ${i * 0.05}s ease`;
+    revealObs.observe(item);
+  });
+</script>
+
+</body>
+</html>
